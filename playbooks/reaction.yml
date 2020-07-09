@@ -8,7 +8,7 @@
   remote_user: root
   gather_facts: true
   vars:
-    do_auth_token: "871f6ecb4c7f8b30f0f623015fb9211aae1c2c6c6d59fea41cc74d5a5bf0dff0"
+    do_auth_token: ""
     domain: "unify.cr"
     email: "enzo@wekonwinc.com"
 
@@ -162,7 +162,7 @@
         force: yes
 
     - git:
-        repo: "https://github.com/reactioncommerce/proxy-traefik.git"
+        repo: "https://github.com/weknowinc/autopartes-proxy-traefik.git"
         dest: /home/{{ create_user }}/{{proxy_dir}}
         version: trunk
         force: yes
@@ -264,7 +264,7 @@
             file_dest: "{{ reaction_platform_path }}/reaction",
           }
         - {
-            file_src: "{{ proxy_path }}/example-storefront/docker-compose.override.yml",
+            file_src: "{{ proxy_path }}/example-autopartes/docker-compose.override.yml",
             file_dest: "{{ reaction_platform_path }}/example-storefront",
           }
         - {
