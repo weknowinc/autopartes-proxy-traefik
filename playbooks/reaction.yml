@@ -8,9 +8,9 @@
   remote_user: root
   gather_facts: true
   vars:
-    do_auth_token: "YOUR_DIGITALOCEAN_AUTH_TOKEN"
-    domain: "YOUR_DOMAIN"
-    email: "YOUR_EMAIL"
+    do_auth_token: "871f6ecb4c7f8b30f0f623015fb9211aae1c2c6c6d59fea41cc74d5a5bf0dff0"
+    domain: "unify.cr"
+    email: "enzo@wekonwinc.com"
 
     create_user: reaction
     copy_local_key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
@@ -88,7 +88,7 @@
       apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
         state: present
-        
+
     - name: Add Docker Repository
       apt_repository:
         repo: deb https://download.docker.com/linux/ubuntu bionic stable
@@ -159,11 +159,13 @@
         repo: "https://github.com/reactioncommerce/reaction-development-platform.git"
         dest: /home/{{ create_user }}/{{reaction_dir}}
         version: trunk
+        force: yes
 
     - git:
         repo: "https://github.com/reactioncommerce/proxy-traefik.git"
         dest: /home/{{ create_user }}/{{proxy_dir}}
         version: trunk
+        force: yes
 
     - name: Change owner of the Reaction Platform and proxy to the newly created user
       command: "chown -R {{create_user}}:{{create_user}} {{reaction_dir}} {{proxy_dir}}"
@@ -296,7 +298,7 @@
         regexp: "^ROOT_URL"
         line: "ROOT_URL=https://api.{{ domain }}"
 
-    - name: "Set the example storefront's environment variables"
+    - name: "Set the example autopartes's environment variables"
       lineinfile:
         path: "{{ reaction_platform_path }}/example-storefront/.env"
         regexp: "^{{ item.variable }}"
@@ -304,7 +306,7 @@
       loop:
         - {
             variable: "CANONICAL_URL",
-            value: "https://storefront.{{ domain }}",
+            value: "https://autopartes.{{ domain }}",
           }
         - {
             variable: "EXTERNAL_GRAPHQL_URL",
@@ -320,7 +322,7 @@
           }
         - {
             variable: "OAUTH2_REDIRECT_URL",
-            value: "https://storefront.{{ domain }}/callback",
+            value: "https://autopartes.{{ domain }}/callback",
           }
         - {
             variable: "OAUTH2_TOKEN_URL",
@@ -386,7 +388,7 @@
           }
         - {
             variable: "OAUTH2_CLIENT_DOMAINS",
-            value: "https://storefront.{{ domain }}"
+            value: "https://autopartes.{{ domain }}"
           }
 
     - name: "Set the Reaction admin UI service environment variables"
@@ -401,7 +403,7 @@
           }
         - {
             variable: "PUBLIC_STOREFRONT_HOME_URL",
-            value: "https://storefront.{{ domain }}",
+            value: "https://autopartes.{{ domain }}",
           }
         - {
             variable: "PUBLIC_I18N_BASE_URL",
