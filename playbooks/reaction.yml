@@ -280,6 +280,15 @@
             file_dest: "{{ reaction_platform_path }}/reaction-identity",
           }
 
+    - name: "Copy config.local.mk"
+      copy:
+        src: "{{ proxy_path }}/reaction-platform/config.local.mk"
+        dest: "{{ reaction_platform_path }}/config.local.mk",
+        remote_src: yes
+        owner: "{{ create_user }}"
+        group: "{{ create_user }}"
+        mode: "0644"
+
     - name: "Set the desired domain in all docker-compose.override.yml files"
       replace:
         path: "{{ item }}"
