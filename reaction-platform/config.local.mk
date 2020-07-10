@@ -9,4 +9,5 @@ https://github.com/reactioncommerce/reaction-hydra.git,reaction-hydra,v3.0.0 \
 https://github.com/reactioncommerce/reaction.git,reaction,v3.7.1 \
 https://github.com/reactioncommerce/reaction-identity.git,reaction-identity,v3.0.0 \
 https://github.com/reactioncommerce/reaction-admin.git,reaction-admin,v3.0.0-beta.7 \
-git@g
+git@github.com:weknowinc/autopartes.git,autopartes,master
+endef
