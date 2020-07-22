@@ -196,9 +196,20 @@
         regexp: "git@github.com:"
         replace: "https://github.com"
 
+    - name: "(ssh-agent hack: grant access to {{ create_user }})"
+      # SSH-agent socket is forwarded for the current user only (0700 file). Let's change it
+      # See: https://github.com/ansible/ansible/issues/7235
+      # See: http://serverfault.com/questions/107187/ssh-agent-forwarding-and-sudo-to-another-user
+      acl: name={{ item }} etype=user entity={{ create_user }} permissions="rwx" state=present
+      with_items:
+        - "{{ ansible_env.SSH_AUTH_SOCK|dirname }}"
+        - "{{ ansible_env.SSH_AUTH_SOCK }}"
+
     - name: "Build the Reaction Platform"
       become: yes
       become_user: "{{ create_user }}"
+      become_exe: "sudo"
+      become_flags: "-HESn"
       command: make
       args:
         chdir: "/home/{{create_user}}/{{reaction_dir}}"
