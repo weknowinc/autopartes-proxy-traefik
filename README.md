@@ -156,7 +156,7 @@ that need to be updated and a description of each.
 | Variable               | Description                                                                 |
 | ---------------------- | ----------------------------------------------------------------------------|
 | dnsimple_auth_token    | The Authentication token for the DNSimple API                               |
-| dnsimple_base_url      | Base URL for the DNSimple API                                               |
+| dnsimple_base_url      | Base URL for the DNSimple API (`https://api.dnsimple.com`)                  |
 | email                  | An email address to receive SSl certificate notifications                   |
 | domain                 | Your registered domain                                                      |
 
