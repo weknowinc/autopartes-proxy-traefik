@@ -8,7 +8,8 @@
   remote_user: root
   gather_facts: true
   vars:
-    do_auth_token: ""
+    dnsimple_auth_token: ""
+    dnsimple_base_url: ""
     domain: "unify.cr"
     email: "enzo@wekonwinc.com"
 
@@ -196,9 +197,20 @@
         regexp: "git@github.com:"
         replace: "https://github.com"
 
+    - name: "(ssh-agent hack: grant access to {{ create_user }})"
+      # SSH-agent socket is forwarded for the current user only (0700 file). Let's change it
+      # See: https://github.com/ansible/ansible/issues/7235
+      # See: http://serverfault.com/questions/107187/ssh-agent-forwarding-and-sudo-to-another-user
+      acl: name={{ item }} etype=user entity={{ create_user }} permissions="rwx" state=present
+      with_items:
+        - "{{ ansible_env.SSH_AUTH_SOCK|dirname }}"
+        - "{{ ansible_env.SSH_AUTH_SOCK }}"
+
     - name: "Build the Reaction Platform"
       become: yes
       become_user: "{{ create_user }}"
+      become_exe: "sudo"
+      become_flags: "-HESn"
       command: make
       args:
         chdir: "/home/{{create_user}}/{{reaction_dir}}"
@@ -214,11 +226,17 @@
     - name: Create Docker network named internal
       command: docker network create internal
 
-    - name: "Set DO Auth Token in Traefik's docker-compose.yml"
+    - name: "Set DNSimple Auth Token in Traefik's docker-compose.yml"
       replace:
         path: "{{ traefik_path}}/docker-compose.yml"
-        regexp: "YOUR_DIGITALOCEAN_AUTH_TOKEN"
-        replace: "{{ do_auth_token }}"
+        regexp: "YOUR_DNSIMPLE_AUTH_TOKEN"
+        replace: "{{ dnsimple_auth_token }}"
+
+    - name: "Set DNSimple Base URL in Traefik's docker-compose.yml"
+      replace:
+        path: "{{ traefik_path}}/docker-compose.yml"
+        regexp: "YOUR_DNSIMPLE_BASE_URL"
+        replace: "{{ dnsimple_base_url }}"
 
     - name: "Set config files path in Traefik's docker-compose.yml"
       replace:

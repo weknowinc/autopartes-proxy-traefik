@@ -22,5 +22,5 @@ certificatesResolvers:
       email: enzo@weknowinc.com
       storage: acme.json
       dnsChallenge:
-        provider: digitalocean
+        provider: dnsimple
         delayBeforeCheck: 0
