@@ -292,7 +292,7 @@
           }
         - {
             file_src: "{{ proxy_path }}/example-autopartes/docker-compose.override.yml",
-            file_dest: "{{ reaction_platform_path }}/example-storefront",
+            file_dest: "{{ reaction_platform_path }}/autopartes",
           }
         - {
             file_src: "{{ proxy_path }}/reaction-admin/docker-compose.override.yml",
@@ -314,7 +314,7 @@
         replace: "{{ domain }}"
       loop:
         - "{{ reaction_platform_path }}/reaction/docker-compose.override.yml"
-        - "{{ reaction_platform_path }}/example-storefront/docker-compose.override.yml"
+        - "{{ reaction_platform_path }}/autopartes/docker-compose.override.yml"
         - "{{ reaction_platform_path }}/reaction-admin/docker-compose.override.yml"
         - "{{ reaction_platform_path }}/reaction-hydra/docker-compose.override.yml"
         - "{{ reaction_platform_path }}/reaction-identity/docker-compose.override.yml"
@@ -327,7 +327,7 @@
 
     - name: "Set the example autopartes's environment variables"
       lineinfile:
-        path: "{{ reaction_platform_path }}/example-storefront/.env"
+        path: "{{ reaction_platform_path }}/autopartes/.env"
         regexp: "^{{ item.variable }}"
         line: "{{ item.variable }}={{ item.value }}"
       loop:
