@@ -8,12 +8,27 @@ services:
   web:
     labels:
       - "traefik.enable=true"
+      # redirect -- http://example.com -> https://example.com
       - "traefik.http.routers.web.entrypoints=http"
-      - "traefik.http.routers.web.rule=Host(`autopartes.example.com`)"
+      - "traefik.http.routers.web.rule=Host(`example.com`)"
       - "traefik.http.middlewares.web-https-redirect.redirectscheme.scheme=https"
       - "traefik.http.routers.web.middlewares=web-https-redirect"
+      # redirect -- http://www.example.com -> https://www.example.com
+      - "traefik.http.routers.web-www.entrypoints=http"
+      - "traefik.http.routers.web-www.rule=Host(`www.example.com`)"
+      - "traefik.http.middlewares.web-www-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.web-www.middlewares=web-www-https-redirect"
+      # redirect -- https://wwww.example.com -> https://example.com
+      - "traefik.http.routers.web-www-secure.entrypoints=https"
+      - "traefik.http.routers.web-www-secure.rule=Host(`www.example.com`)"
+      - "traefik.http.routers.web-www-secure.tls=true"
+      - "traefik.http.middlewares.web-www-secure-redirect-nonwww.redirectregex.regex=^https://www.example.com/(.*)"
+      - "traefik.http.middlewares.web-www-secure-redirect-nonwww.redirectregex.replacement=https://example.com/$${1}"
+      - "traefik.http.middlewares.web-www-secure-redirect-nonwww.redirectregex.permanent=true"
+      - "traefik.http.routers.web-www-secure.middlewares=web-www-secure-redirect-nonwww"
+      # https://example.com
       - "traefik.http.routers.web-secure.entrypoints=https"
-      - "traefik.http.routers.web-secure.rule=Host(`autopartes.example.com`)"
+      - "traefik.http.routers.web-secure.rule=Host(`example.com`)"
       - "traefik.http.routers.web-secure.tls=true"
       - "traefik.http.routers.web-secure.service=web"
       - "traefik.http.services.web.loadbalancer.server.port=4000"
