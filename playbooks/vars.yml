@@ -1,7 +1,7 @@
 ---
 dnsimple_auth_token: ""
 dnsimple_base_url: "https://api.dnsimple.com"
-domain: "unify.cr"
+domain: "autopartes.cr"
 email: "enzo@wekonwinc.com"
 
 create_user: reaction
