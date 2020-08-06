@@ -191,7 +191,7 @@
       loop:
         - {
             variable: "CANONICAL_URL",
-            value: "https://autopartes.{{ domain }}",
+            value: "https://{{ domain }}",
           }
         - {
             variable: "EXTERNAL_GRAPHQL_URL",
@@ -207,7 +207,7 @@
           }
         - {
             variable: "OAUTH2_REDIRECT_URL",
-            value: "https://autopartes.{{ domain }}/callback",
+            value: "https://{{ domain }}/callback",
           }
         - {
             variable: "OAUTH2_TOKEN_URL",
@@ -273,7 +273,7 @@
           }
         - {
             variable: "OAUTH2_CLIENT_DOMAINS",
-            value: "https://autopartes.{{ domain }}"
+            value: "https://{{ domain }}"
           }
 
     - name: "Set the Reaction admin UI service environment variables"
@@ -288,7 +288,7 @@
           }
         - {
             variable: "PUBLIC_STOREFRONT_HOME_URL",
-            value: "https://autopartes.{{ domain }}",
+            value: "https://{{ domain }}",
           }
         - {
             variable: "PUBLIC_I18N_BASE_URL",
