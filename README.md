@@ -167,10 +167,8 @@ For the rest of the variables, the default values should be used, DO NOT change 
 Now it's time to execute the `reaction.yml` playbook, which automates most of the tedious server configuration tasks, execute the following command:
 
 ```
-ansible-playbook playbooks/reaction.yml -l reaction.server
+make setup
 ```
-
-NOTE: the `-l reaction.server` limits the execution of the playbook to the `reaction.server` host.
 
 ###### Create the Primary Shop
 
@@ -184,6 +182,17 @@ https://admin.example.com
 Upon navigating to the Reaction Admin interface, you will be presented with a login form, it will be necessary to create a user first, so click on the "Register" link and fill out the form. Once logged in, proceed to create a shop in the admin interface.
 
 Further, the `GraphQL API` explorer will be available at `https://api.example.com/graphql`.
+
+###### Updating
+
+If later on this repo gets updated it is not required to run all the included tasks in the playbook, and instead only run certain tasks to update reaction, traefik and docker config files.
+Keep in mind that the traefik daemon will not be restarted once the config files are updated.
+
+Execute the following command to update reaction:
+
+```
+make update
+```
 
 ### Video Tutorial
 
