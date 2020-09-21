@@ -359,3 +359,8 @@
       shell: "source /home/{{ create_user }}/.bashrc"
       args:
         executable: /bin/bash
+
+    - name: "Restart autopartes container"
+      command: docker-compose restart
+      args:
+        chdir: "{{ reaction_platform_path }}/autopartes"
