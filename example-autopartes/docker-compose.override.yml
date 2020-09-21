@@ -34,7 +34,7 @@ services:
       - "traefik.http.routers.web-secure.service=web"
       - "traefik.http.services.web.loadbalancer.server.port=4000"
       - "traefik.docker.network=web"
-    image: reactioncommerce/node-prod
+    image: reactioncommerce/node-prod:12.14.1-v3
     command: "./bin/start-prod"
     volumes:
       - .:/usr/local/src/app
