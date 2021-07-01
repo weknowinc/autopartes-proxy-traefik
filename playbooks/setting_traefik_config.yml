@@ -11,9 +11,6 @@
     - "vars.yml"
 
   tasks:
-    - include: setup.yml
-      when: setup is defined
-
     - git:
         repo: "https://github.com/reactioncommerce/reaction-development-platform.git"
         dest: /home/{{ create_user }}/{{reaction_dir}}
@@ -25,115 +22,6 @@
         dest: /home/{{ create_user }}/{{proxy_dir}}
         version: trunk
         force: yes
-
-    - name: "Copy config.local.mk"
-      copy:
-        src: "{{ proxy_path }}/reaction-platform/config.local.mk"
-        dest: "{{ reaction_platform_path }}/config.local.mk"
-        remote_src: yes
-        owner: "{{ create_user }}"
-        group: "{{ create_user }}"
-        mode: "0644"
-
-    - name: Change owner of the Reaction Platform and proxy to the newly created user
-      command: "chown -R {{create_user}}:{{create_user}} {{reaction_dir}} {{proxy_dir}}"
-      args:
-        warn: false
-        chdir: /home/{{ create_user }}
-
-    - name: Change permissions of the source code directories
-      command: "chmod -R 755 {{reaction_dir}} {{proxy_dir}}"
-      args:
-        warn: false
-        chdir: /home/{{ create_user }}
-
-    - name: "In the Reaction development platform directory use HTTPS protocol to clone repositories"
-      become: yes
-      become_user: "{{ create_user }}"
-      replace:
-        path: "/home/{{create_user}}/{{reaction_dir}}/config.mk"
-        regexp: "git@github.com:"
-        replace: "https://github.com"
-
-    - name: "(ssh-agent hack: grant access to {{ create_user }})"
-      # SSH-agent socket is forwarded for the current user only (0700 file). Let's change it
-      # See: https://github.com/ansible/ansible/issues/7235
-      # See: http://serverfault.com/questions/107187/ssh-agent-forwarding-and-sudo-to-another-user
-      acl: name={{ item }} etype=user entity={{ create_user }} permissions="rwx" state=present
-      with_items:
-        - "{{ ansible_env.SSH_AUTH_SOCK|dirname }}"
-        - "{{ ansible_env.SSH_AUTH_SOCK }}"
-
-    - name: "Build the Reaction Platform"
-      become: yes
-      become_user: "{{ create_user }}"
-      become_exe: "sudo"
-      become_flags: "-HESn"
-      command: make
-      args:
-        chdir: "/home/{{create_user}}/{{reaction_dir}}"
-
-    - name: "Stop all Reaction development platform containers"
-      command: make stop
-      args:
-        chdir: "{{ reaction_platform_path }}"
-
-    - name: Create Docker network named web
-      command: docker network create web
-
-    - name: Create Docker network named internal
-      command: docker network create internal
-
-    - name: "Set DNSimple Auth Token in Traefik's docker-compose.yml"
-      replace:
-        path: "{{ traefik_path}}/docker-compose.yml"
-        regexp: "YOUR_DNSIMPLE_AUTH_TOKEN"
-        replace: "{{ dnsimple_auth_token }}"
-
-    - name: "Set DNSimple Base URL in Traefik's docker-compose.yml"
-      replace:
-        path: "{{ traefik_path}}/docker-compose.yml"
-        regexp: "YOUR_DNSIMPLE_BASE_URL"
-        replace: "{{ dnsimple_base_url }}"
-
-    - name: "Set config files path in Traefik's docker-compose.yml"
-      replace:
-        path: "{{ traefik_path}}/docker-compose.yml"
-        regexp: "TRAEFIK_PATH"
-        replace: "{{ traefik_path }}"
-
-    - name: "Set the desired domain in Traefik's docker-compose.yml"
-      replace:
-        path: "{{ traefik_path}}/docker-compose.yml"
-        regexp: "example.com"
-        replace: "{{ domain }}"
-
-    - name: "Set the email in Traefik's config file"
-      replace:
-        path: "{{ traefik_path}}/traefik.yml"
-        regexp: "YOUR_EMAIL"
-        replace: "{{ email }}"
-
-    - name: "Set the domain in Traefik's config file"
-      replace:
-        path: "{{ traefik_path}}/traefik.yml"
-        regexp: "YOUR_DOMAIN"
-        replace: "{{ domain }}"
-
-    - name: "Set correct permissions on traefik.yml"
-      file:
-        path: "{{ traefik_path}}/traefik.yml"
-        mode: "600"
-
-    - name: "Set correct permissions on acme.json"
-      file:
-        path: "{{ traefik_path}}/acme.json"
-        mode: "600"
-
-    - name: "Start Traefik"
-      command: "docker-compose up -d"
-      args:
-        chdir: "{{ traefik_path }}"
 
     - name: "Copy docker-compose.override.yml files"
       copy:
@@ -149,7 +37,7 @@
             file_dest: "{{ reaction_platform_path }}/reaction",
           }
         - {
-            file_src: "{{ proxy_path }}/example-autopartes/docker-compose.override.yml",
+            file_src: "{{ proxy_path }}/autopartes/docker-compose.override.yml",
             file_dest: "{{ reaction_platform_path }}/autopartes",
           }
         - {
@@ -314,53 +202,3 @@
             variable: "OAUTH2_IDP_PUBLIC_CHANGE_PASSWORD_URL",
             value: "https://identity.{{ domain }}/account/change-password?email=EMAIL&from=FROM"
           }
-
-    - name: "Remove all Reaction Platform containers"
-      command: make rm
-      args:
-        chdir: "{{ reaction_platform_path }}"
-
-    - name: "Start all Reaction Platform containers"
-      command: make start
-      args:
-        chdir: "{{ reaction_platform_path }}"
-
-    - name: Download Lazydocker
-      get_url:
-        url: https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh
-        dest: /tmp
-
-    - name: Install Lazydocker
-      command: bash /tmp/install_update_linux.sh
-
-    - name: Add Docker Compose aliases
-      blockinfile:
-        path: "/home/{{ create_user }}/.bashrc"
-        block: |
-          alias dc='docker-compose'
-          # Bring all services down
-          alias dcd='docker-compose down'
-          # Attach to all logs of all services
-          alias dcl='docker-compose logs -f'
-          # Run a comand inside a running container
-          alias dcr='docker-compose run --rm'
-          # "Restart" all services
-          alias dcre='docker-compose down && docker-compose up -d && docker-compose logs -f'
-          # Bring all services up in daemon mode
-          alias dcu='docker-compose up -d'
-          # Bring all containers up and attach to their logs
-          alias dcul='docker-compose up -d && docker-compose logs -f'
-          # Remove exited containers
-          alias dprune='docker ps -aq --no-trunc -f status=exited | xargs docker rm'
-          # Show all running containers, with horizontal paging
-          alias dps='docker ps -a | less -S'
-
-    - name: "Source .bashrc"
-      shell: "source /home/{{ create_user }}/.bashrc"
-      args:
-        executable: /bin/bash
-
-    - name: "Restart autopartes container"
-      command: docker-compose restart
-      args:
-        chdir: "{{ reaction_platform_path }}/autopartes"
