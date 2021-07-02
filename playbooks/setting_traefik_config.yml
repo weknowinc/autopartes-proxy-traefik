@@ -11,18 +11,6 @@
     - "vars.yml"
 
   tasks:
-    - git:
-        repo: "https://github.com/reactioncommerce/reaction-development-platform.git"
-        dest: /home/{{ create_user }}/{{reaction_dir}}
-        version: trunk
-        force: yes
-
-    - git:
-        repo: "https://github.com/weknowinc/autopartes-proxy-traefik.git"
-        dest: /home/{{ create_user }}/{{proxy_dir}}
-        version: trunk
-        force: yes
-
     - name: "Copy docker-compose.override.yml files"
       copy:
         src: "{{ item.file_src }}"
