@@ -1,0 +1,27 @@
+###########################################################################################################
+# Playbook: Initial Server Setup for the Reaction Platform on a Ubuntu 18.4 Digital Ocean Droplet.
+# This playbook will also configure and docker-compose based deployment of the Reaction platform.
+###################################################################################################################
+
+###################################################################################################################
+# 2nd part - It is much better to run it manually
+###################################################################################################################
+---
+- hosts: all
+  remote_user: root
+  gather_facts: true
+  vars_files:
+    - "vars.yml"
+
+  tasks:
+    - name: "Build the Reaction Platform"
+      become: yes
+      become_user: "{{ create_user }}"
+      command: make
+      args:
+        chdir: "/home/{{create_user}}/{{reaction_dir}}"
+
+    - name: "Stop all Reaction development platform containers"
+      command: make stop
+      args:
+        chdir: "{{ reaction_platform_path }}"

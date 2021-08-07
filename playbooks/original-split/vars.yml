@@ -1,0 +1,21 @@
+###########################################################################################################
+# Playbook Vars
+###################################################################################################################
+# Split from the original file to share between separated playbooks
+###################################################################################################################
+
+---
+#do_auth_token: "YOUR_DIGITALOCEAN_AUTH_TOKEN"
+domain: "reaction.local"
+email: "ibonelli@weknowinc.com"
+
+create_user: reaction
+copy_local_key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
+docker_compose_version: "1.25.4"
+nodejs_version: "12.x"
+proxy_dir: proxy
+proxy_path: "/home/{{ create_user }}/{{ proxy_dir }}"
+reaction_dir: reaction-development-platform
+reaction_platform_path: "/home/{{create_user}}/{{reaction_dir}}"
+traefik_admin_user: reaction
+traefik_path: "/home/{{ create_user }}/{{ proxy_dir }}/traefik"

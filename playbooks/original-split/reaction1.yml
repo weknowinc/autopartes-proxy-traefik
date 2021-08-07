@@ -1,0 +1,176 @@
+###########################################################################################################
+# Playbook: Initial Server Setup for the Reaction Platform on a Ubuntu 18.4 Digital Ocean Droplet.
+# This playbook will also configure and docker-compose based deployment of the Reaction platform.
+###################################################################################################################
+
+###################################################################################################################
+# 1st part - Initial server setup
+###################################################################################################################
+---
+- hosts: all
+  remote_user: root
+  gather_facts: true
+  vars_files:
+    - "vars.yml"
+
+  tasks:
+    - name: Make sure we have a 'wheel' group
+      group:
+        name: wheel
+        state: present
+
+    - name: Make sure we have a 'docker' group to facilitate running docker without sudo.
+      group:
+        name: docker
+        state: present
+
+    - name: Allow 'wheel' group to have password-less sudo
+      lineinfile:
+        path: /etc/sudoers
+        state: present
+        regexp: "^%wheel"
+        line: "%wheel ALL=(ALL) NOPASSWD: ALL"
+        validate: "/usr/sbin/visudo -cf %s"
+
+    - name: Create a new regular user with sudo privileges
+      user:
+        name: "{{ create_user }}"
+        state: present
+        groups: wheel, docker
+        append: true
+        create_home: true
+        shell: /bin/bash
+
+    - name: Set authorized key for remote user
+      authorized_key:
+        user: "{{ create_user }}"
+        state: present
+        key: "{{ copy_local_key }}"
+
+    - name: Disable password authentication for root
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        state: present
+        regexp: "^#?PermitRootLogin"
+        line: "PermitRootLogin prohibit-password"
+
+    - name: Update apt
+      apt: update_cache=yes
+
+    - name: Install aptitude using apt
+      apt: name=aptitude state=latest update_cache=yes force_apt_get=yes
+
+    - name: Install required system packages
+      apt: name={{ item }} state=latest update_cache=yes
+      loop:
+        [
+          "apt-transport-https",
+          "build-essential",
+          "ca-certificates",
+          "curl",
+          "git",
+          "libssl-dev",
+          "software-properties-common",
+          "vim",
+        ]
+
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+        
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu bionic stable
+        state: present
+
+    - name: Update apt and install docker-ce
+      apt: update_cache=yes name=docker-ce state=latest
+
+    - name: Ensure docker-compose is installed and available
+      get_url:
+        url: https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-{{ ansible_system }}-{{ ansible_userspace_architecture }}
+        dest: /usr/local/bin/docker-compose
+        mode: "u=rwx,g=rx,o=rx"
+
+    - name: Add Nodesource apt key.
+      apt_key:
+        url: https://keyserver.ubuntu.com/pks/lookup?op=get&fingerprint=on&search=0x1655A0AB68576280
+        id: "68576280"
+        state: present
+
+    - name: Add NodeSource repositories for Node.js.
+      apt_repository:
+        repo: "{{ item }}"
+        state: present
+      with_items:
+        - "deb https://deb.nodesource.com/node_{{ nodejs_version }} {{ ansible_distribution_release }} main"
+        - "deb-src https://deb.nodesource.com/node_{{ nodejs_version }} {{ ansible_distribution_release }} main"
+      register: node_repo
+
+    - name: Update apt cache if repo was added.
+      apt: update_cache=yes
+      when: node_repo.changed
+      tags: ["skip_ansible_lint"]
+
+    - name: Ensure Node.js and npm are installed.
+      apt: "name=nodejs={{ nodejs_version|regex_replace('x', '') }}* state=present"
+
+    - name: "Yarn | GPG"
+      apt_key:
+        url: https://dl.yarnpkg.com/debian/pubkey.gpg
+        state: present
+
+    - name: "Yarn | Ensure Debian sources list file exists"
+      file:
+        path: /etc/apt/sources.list.d/yarn.list
+        owner: root
+        mode: "0644"
+        state: touch
+
+    - name: "Yarn | Ensure Debian package is in sources list"
+      lineinfile:
+        dest: /etc/apt/sources.list.d/yarn.list
+        regexp: "deb http://dl.yarnpkg.com/debian/ stable main"
+        line: "deb http://dl.yarnpkg.com/debian/ stable main"
+        state: present
+
+    - name: "Yarn | Update APT cache"
+      apt:
+        update_cache: yes
+
+    - name: "Install Yarn"
+      apt:
+        name: yarn
+        state: present
+        install_recommends: no
+
+    - git:
+        repo: "https://github.com/reactioncommerce/reaction-development-platform.git"
+        dest: /home/{{ create_user }}/{{reaction_dir}}
+        version: trunk
+
+    - git:
+        repo: "https://github.com/reactioncommerce/proxy-traefik.git"
+        dest: /home/{{ create_user }}/{{proxy_dir}}
+        version: trunk
+
+    - name: Change owner of the Reaction Platform and proxy to the newly created user
+      command: "chown -R {{create_user}}:{{create_user}} {{reaction_dir}} {{proxy_dir}}"
+      args:
+        warn: false
+        chdir: /home/{{ create_user }}
+
+    - name: Change permissions of the source code directories
+      command: "chmod -R 755 {{reaction_dir}} {{proxy_dir}}"
+      args:
+        warn: false
+        chdir: /home/{{ create_user }}
+
+    - name: "In the Reaction development platform directory use HTTPS protocol to clone repositories"
+      become: yes
+      become_user: "{{ create_user }}"
+      replace:
+        path: "/home/{{create_user}}/{{reaction_dir}}/config.mk"
+        regexp: "git@github.com:"
+        replace: "https://github.com"
