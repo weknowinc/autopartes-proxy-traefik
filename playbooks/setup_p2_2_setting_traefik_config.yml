@@ -11,6 +11,34 @@
     - "vars.yml"
 
   tasks:
+    # Traefik configuration
+    - name: "Set config files path in Traefik's docker-compose.yml"
+      replace:
+        path: "{{ traefik_path}}/docker-compose.yml"
+        regexp: "TRAEFIK_PATH"
+        replace: "{{ traefik_path }}"
+
+    - name: "Set the desired domain in Traefik's docker-compose.yml"
+      replace:
+        path: "{{ traefik_path}}/docker-compose.yml"
+        regexp: "example.com"
+        replace: "{{ domain }}"
+    - name: "Set the domain in Traefik's config file"
+      replace:
+        path: "{{ traefik_path}}/traefik.yml"
+        regexp: "YOUR_DOMAIN"
+        replace: "{{ domain }}"
+
+    - name: "Set correct permissions on traefik.yml"
+      file:
+        path: "{{ traefik_path}}/traefik.yml"
+        mode: "600"
+
+    - name: "Set correct permissions on acme.json"
+      file:
+        path: "{{ traefik_path}}/acme.json"
+        mode: "600"
+    # Docker override's
     - name: "Copy docker-compose.override.yml files"
       copy:
         src: "{{ item.file_src }}"
