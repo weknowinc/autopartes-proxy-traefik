@@ -21,7 +21,7 @@
       command: docker network create internal
 
 ##### Not going to use the DNS automatic configuration
-#
+#		(not using this as Letsencrypt HTTP challenge is simpler)
 #    - name: "Set DO Auth Token in Traefik's docker-compose.yml"
 #      replace:
 #        path: "{{ traefik_path}}/docker-compose.yml"

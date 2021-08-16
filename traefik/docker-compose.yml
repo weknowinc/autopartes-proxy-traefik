@@ -15,9 +15,6 @@ services:
     ports:
       - "80:80"
       - "443:443"
-    environment:
-      - DNSIMPLE_OAUTH_TOKEN=YOUR_DNSIMPLE_AUTH_TOKEN
-      - DNSIMPLE_BASE_URL=YOUR_DNSIMPLE_BASE_URL
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
