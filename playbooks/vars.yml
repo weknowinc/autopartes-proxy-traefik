@@ -2,7 +2,7 @@
 dnsimple_auth_token: ""
 dnsimple_base_url: "https://api.dnsimple.com"
 domain: "autopartes.cr"
-email: "ibonelli@wekonwinc.com"
+email: "enzo@wekonwinc.com"
 
 create_user: reaction
 copy_local_key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"

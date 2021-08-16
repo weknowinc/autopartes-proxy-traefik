@@ -21,5 +21,6 @@ certificatesResolvers:
       # caServer: https://acme-staging-v02.api.letsencrypt.org/directory
       email: YOUR_EMAIL
       storage: acme.json
-      httpChallenge:
-        entryPoint: web
+      dnsChallenge:
+        provider: dnsimple
+        delayBeforeCheck: 0
