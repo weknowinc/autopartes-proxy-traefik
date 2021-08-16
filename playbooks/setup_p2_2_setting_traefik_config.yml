@@ -23,6 +23,13 @@
         path: "{{ traefik_path}}/docker-compose.yml"
         regexp: "example.com"
         replace: "{{ domain }}"
+
+    - name: "Set the email in Traefik's config file"
+      replace:
+        path: "{{ traefik_path}}/traefik.yml"
+        regexp: "YOUR_EMAIL"
+        replace: "{{ email }}"
+
     - name: "Set the domain in Traefik's config file"
       replace:
         path: "{{ traefik_path}}/traefik.yml"

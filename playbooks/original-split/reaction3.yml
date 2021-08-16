@@ -14,12 +14,12 @@
     - "vars.yml"
 
   tasks:
-#    - name: Create Docker network named web
-#      command: docker network create web
-#
-#    - name: Create Docker network named internal
-#      command: docker network create internal
-#
+    - name: Create Docker network named web
+      command: docker network create web
+
+    - name: Create Docker network named internal
+      command: docker network create internal
+
 ##### Not going to use the DNS automatic configuration
 #
 #    - name: "Set DO Auth Token in Traefik's docker-compose.yml"
@@ -40,13 +40,11 @@
         regexp: "example.com"
         replace: "{{ domain }}"
 
-##### Not going to use the DNS automatic configuration
-#
-#    - name: "Set the email in Traefik's config file"
-#      replace:
-#        path: "{{ traefik_path}}/traefik.yml"
-#        regexp: "YOUR_EMAIL"
-#        replace: "{{ email }}"
+    - name: "Set the email in Traefik's config file"
+      replace:
+        path: "{{ traefik_path}}/traefik.yml"
+        regexp: "YOUR_EMAIL"
+        replace: "{{ email }}"
 
     - name: "Set the domain in Traefik's config file"
       replace:
