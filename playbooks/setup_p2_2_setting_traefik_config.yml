@@ -11,6 +11,19 @@
     - "vars.yml"
 
   tasks:
+    # DNSimple configuration
+    - name: "Set DNSimple Auth Token in Traefik's docker-compose.yml"
+      replace:
+        path: "{{ traefik_path}}/docker-compose.yml"
+        regexp: "YOUR_DNSIMPLE_AUTH_TOKEN"
+        replace: "{{ dnsimple_auth_token }}"
+
+    - name: "Set DNSimple Base URL in Traefik's docker-compose.yml"
+      replace:
+        path: "{{ traefik_path}}/docker-compose.yml"
+        regexp: "YOUR_DNSIMPLE_BASE_URL"
+        replace: "{{ dnsimple_base_url }}"
+
     # Traefik configuration
     - name: "Set config files path in Traefik's docker-compose.yml"
       replace:
@@ -31,12 +44,11 @@
         replace: "{{ email }}"
 
     # This was done manually on the file to avoid DNS challenge needs
-    #	(using individual domains HTTP challenge is possible)
-    #- name: "Set the domain in Traefik's config file"
-    #  replace:
-    #    path: "{{ traefik_path}}/traefik.yml"
-    #    regexp: "YOUR_DOMAIN"
-    #    replace: "{{ domain }}"
+    - name: "Set the domain in Traefik's config file"
+      replace:
+        path: "{{ traefik_path}}/traefik.yml"
+        regexp: "YOUR_DOMAIN"
+        replace: "{{ domain }}"
 
     - name: "Set correct permissions on traefik.yml"
       file:
