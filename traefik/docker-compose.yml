@@ -32,8 +32,12 @@ services:
       - "traefik.http.routers.traefik-secure.rule=Host(`traefik.example.com`)"
       - "traefik.http.routers.traefik-secure.tls=true"
       - "traefik.http.routers.traefik-secure.tls.certresolver=le"
-      - "traefik.http.routers.traefik-secure.tls.domains[0].main=example.com"
-      - "traefik.http.routers.traefik-secure.tls.domains[0].sans=*.example.com"
+      - "traefik.http.routers.traefik-secure.tls.domains[0].main=traefik.autopartes.cr"
+      - "traefik.http.routers.traefik-secure.tls.domains[0].sans=www.autopartes.cr"
+      - "traefik.http.routers.traefik-secure.tls.domains[0].sans=api.autopartes.cr"
+      - "traefik.http.routers.traefik-secure.tls.domains[0].sans=admin.autopartes.cr"
+      - "traefik.http.routers.traefik-secure.tls.domains[0].sans=identity.autopartes.cr"
+      - "traefik.http.routers.traefik-secure.tls.domains[0].sans=hydra.autopartes.cr"
       - "traefik.http.routers.traefik-secure.service=api@internal"
 
 networks:

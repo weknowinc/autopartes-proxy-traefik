@@ -30,11 +30,13 @@
         regexp: "YOUR_EMAIL"
         replace: "{{ email }}"
 
-    - name: "Set the domain in Traefik's config file"
-      replace:
-        path: "{{ traefik_path}}/traefik.yml"
-        regexp: "YOUR_DOMAIN"
-        replace: "{{ domain }}"
+    # This was done manually on the file to avoid DNS challenge needs
+    #	(using individual domains HTTP challenge is possible)
+    #- name: "Set the domain in Traefik's config file"
+    #  replace:
+    #    path: "{{ traefik_path}}/traefik.yml"
+    #    regexp: "YOUR_DOMAIN"
+    #    replace: "{{ domain }}"
 
     - name: "Set correct permissions on traefik.yml"
       file:
